@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nina – Asistente por voz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="nina.css" />
+</head>
+<body>
+  <header class="topbar">
+    <span>🧠</span>
+    <div>Nina – Asistente</div>
+  </header>
+
+  <main class="main">
+    <h1 class="title">Hablar con Nina</h1>
+    <p class="subtitle">
+      Tocá el botón grande para hablar (si hay internet).<br />
+      O usá los botones de abajo si no querés usar la voz.
+    </p>
+
+    <!-- Tarjeta principal de Nina -->
+    <section class="card">
+      <div class="nina-avatar">🧑‍🦳</div>
+      <div class="nina-name">Nina</div>
+      <div id="status" class="status">Preparando el micrófono...</div>
+
+      <button id="micBtn" class="mic-btn" disabled>
+        <span>🎙️</span>
+        Hablar con Nina
+      </button>
+
+      <p class="hint">
+        Empezá siempre diciendo <b>“Nina...”</b> para que sepa que le hablás a ella.
+      </p>
+    </section>
+
+    <!-- Conversación -->
+    <section class="panel">
+      <div class="panel-title">Última conversación</div>
+      <div class="row">
+        <span class="label">Vos dijiste:</span>
+        <span id="textoUsuario">—</span>
+      </div>
+      <div class="row">
+        <span class="label">Nina respondió:</span>
+        <span id="textoNina">—</span>
+      </div>
+    </section>
+
+    <!-- Botones offline / sin voz -->
+    <section class="panel offline-section">
+      <div class="panel-title">Usar a Nina sin hablar</div>
+      <p>Si el micrófono no funciona o no hay internet, podés usar estos botones:</p>
+      <div class="btn-grid">
+        <button class="small-btn" onclick="respuestaRapida('hora')">¿Qué hora es?</button>
+        <button class="small-btn" onclick="respuestaRapida('dia')">¿Qué día es hoy?</button>
+        <button class="small-btn" onclick="respuestaRapida('dia_completo')">¿Cómo es mi día?</button>
+        <button class="small-btn" onclick="respuestaRapida('juego')">Recomendame un juego</button>
+        <button class="small-btn" onclick="respuestaRapida('crucigrama')">Quiero jugar al crucigrama</button>
+        <button class="small-btn" onclick="respuestaRapida('memoria')">Quiero jugar a la memoria</button>
+        <button class="small-btn" onclick="respuestaRapida('mal')">Me siento mal</button>
+      </div>
+    </section>
+
+    <!-- Más adelante: acá ponemos un botón para abrir la app de juegos -->
+    <section class="panel">
+      <div class="panel-title">Ir a la app de juegos</div>
+      <p>Más adelante, este botón abrirá tu app de juegos cognitivos.</p>
+      <button class="small-btn" onclick="irAJuegos()">Abrir juegos</button>
+    </section>
+  </main>
+
+  <script src="nina.js"></script>
+</body>
+</html>
