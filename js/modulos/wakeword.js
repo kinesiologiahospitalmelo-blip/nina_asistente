@@ -6,12 +6,10 @@ const variantesHola = ["hola", "ola", "holaa", "ola nina", "hola nina"];
 export function procesarWakeWord(frase) {
   let tieneWake = false;
 
-  // Si contiene alguna variante de Nina
   if (variantesNina.some(v => frase.includes(v))) {
     tieneWake = true;
   }
 
-  // O alguna variante de Hola
   if (variantesHola.some(v => frase.includes(v))) {
     tieneWake = true;
   }
@@ -19,7 +17,6 @@ export function procesarWakeWord(frase) {
   let textoLimpio = frase;
 
   if (tieneWake) {
-    // Quitamos las palabras de activación para quedarnos con la intención
     [...variantesNina, ...variantesHola].forEach(v => {
       textoLimpio = textoLimpio.replace(v, "");
     });
