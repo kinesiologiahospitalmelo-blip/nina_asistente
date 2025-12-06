@@ -1,97 +1,80 @@
-// ================================
-// NINA v2 — Controlador Principal
-// ================================
-
 import { iniciarEscuchaContinua, reconocimiento } from "./listenerContinuo.js";
 import { procesarWakeWord } from "./modulos/wakeword.js";
-import { identificarUsuario, nombreUsuario } from "./modulos/identidadUsuario.js";
-
+import { identificarUsuario } from "./modulos/identidadUsuario.js";
 import { hablar } from "./modulos/voz.js";
 import { manejarComandoOffline, respuestaRapidaBoton } from "./modulos/comandosOffline.js";
 import { manejarComandoOnline } from "./modulos/comandosOnline.js";
 import { registrarFrase, predecirIntencion } from "./modulos/aprendizaje.js";
 import { prepararBuscador } from "./modulos/buscador.js";
 
-// ================================
-// ELEMENTOS DOM
-// ================================
+// ---------------- DOM ----------------
 const btnHablar = document.getElementById("btnHablar");
 const estadoVoz = document.getElementById("estadoVoz");
 const textoUsuario = document.getElementById("textoUsuario");
-const textoNina = document.getElementById("textoNina");
 
-// ================================
-// PREPARAR BUSCADOR GOOGLE
-// ================================
+// ---------------- BUFFER DE VOZ ----------------
+let bufferFrase = "";
+let ultimoTiempo = Date.now();
+
+// ---------------- BUSCADOR ----------------
 prepararBuscador();
 
-// ================================
-// RESPUESTA POR BOTONES OFFLINE
-// ================================
-document.querySelectorAll(".btn-small[data-accion]").forEach(boton => {
-  boton.addEventListener("click", () => {
-    const accion = boton.getAttribute("data-accion");
+// ---------------- BOTONES ----------------
+document.querySelectorAll(".btn-small[data-accion]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const accion = btn.getAttribute("data-accion");
     textoUsuario.textContent = `(botón ${accion})`;
     respuestaRapidaBoton(accion);
   });
 });
 
-// ================================
-// BOTÓN PARA ACTIVAR MICRÓFONO
-// ================================
+// ---------------- ACTIVAR MIC ----------------
 btnHablar.addEventListener("click", () => {
   iniciarEscuchaContinua();
-  estadoVoz.textContent = "Escuchando… (modo continuo activado)";
+  estadoVoz.textContent = "Escuchando (modo continuo)…";
 });
 
-// ================================
-// PROCESAR RESULTADO DE VOZ
-// ================================
-reconocimiento.onresult = (event) => {
-  const frase = event.results[0][0].transcript.toLowerCase();
+// ---------------- RECONOCIMIENTO ----------------
+reconocimiento.onresult = event => {
+  const fraseRaw = event.results[0][0].transcript.toLowerCase().trim();
+  const ahora = Date.now();
+
+  if (ahora - ultimoTiempo < 800) {
+    bufferFrase += " " + fraseRaw;
+  } else {
+    bufferFrase = fraseRaw;
+  }
+
+  ultimoTiempo = ahora;
+
+  const frase = bufferFrase.trim();
   textoUsuario.textContent = frase;
 
-  // Aprendizaje
   registrarFrase(frase);
 
-  // Identificación del usuario
-  identificarUsuario(frase);
+  // Identificación sin wakeword
+  if (identificarUsuario(frase)) return;
 
-  // Wake-word
   const { textoLimpio, tieneWake } = procesarWakeWord(frase);
 
-  if (!tieneWake) return; // ignorar ruido o frases sin activar a Nina
+  if (!tieneWake) return;
 
   procesarEntrada(textoLimpio);
 };
 
-// ================================
-// PROCESADOR DE ENTRADA
-// ================================
+// ---------------- PROCESAR ----------------
 function procesarEntrada(frase) {
-
   if (!frase || frase.trim() === "") {
     hablar("Sí, decime.");
     return;
   }
 
-  // PREDICCIÓN INTELIGENTE (offline)
   const intencion = predecirIntencion(frase);
+  if (intencion && manejarComandoOffline(intencion)) return;
 
-  if (intencion && manejarComandoOffline(intencion)) {
-    return;
-  }
+  if (manejarComandoOffline(frase)) return;
 
-  // INTENTO OFFLINE NORMAL
-  if (manejarComandoOffline(frase)) {
-    return;
-  }
+  if (navigator.onLine && manejarComandoOnline(frase)) return;
 
-  // INTENTO ONLINE
-  if (navigator.onLine && manejarComandoOnline(frase)) {
-    return;
-  }
-
-  // IA (Gemini) — futuro
-  hablar("No entendí bien. Más adelante voy a poder ayudarte mejor gracias a la inteligencia artificial.");
+  hablar("No entendí bien, pero voy a mejorar pronto.");
 }
