@@ -1,23 +1,21 @@
 {
   "name": "Nina Asistente",
   "short_name": "Nina",
-  "lang": "es-AR",
   "start_url": "index.html",
-  "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#2f7b68",
-  "theme_color": "#2f7b68",
-  "description": "Asistente personal accesible para adultos mayores. Funciona online y offline.",
-
+  "background_color": "#1d4ed8",
+  "theme_color": "#1d4ed8",
+  "description": "Asistente personal con reconocimiento de voz y ayuda diaria.",
   "icons": [
-    { "src": "icons/icon-72.png", "sizes": "72x72", "type": "image/png" },
-    { "src": "icons/icon-96.png", "sizes": "96x96", "type": "image/png" },
-    { "src": "icons/icon-128.png", "sizes": "128x128", "type": "image/png" },
-    { "src": "icons/icon-144.png", "sizes": "144x144", "type": "image/png" },
-    { "src": "icons/icon-152.png", "sizes": "152x152", "type": "image/png" },
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-384.png", "sizes": "384x384", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }
