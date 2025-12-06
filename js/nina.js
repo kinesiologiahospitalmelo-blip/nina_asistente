@@ -1,98 +1,97 @@
-import { hablar } from "./modulos/voz.js";
+// ================================
+// NINA v2 — Controlador Principal
+// ================================
+
+import { iniciarEscuchaContinua, reconocimiento } from "./listenerContinuo.js";
 import { procesarWakeWord } from "./modulos/wakeword.js";
-import { manejarComandoOffline, respuestaRapidaBoton } from "./modulos/comandosoffline.js";
-import { manejarComandoOnline } from "./modulos/comandosonline.js";
-import { registrarFrase, predecirIntencion, sugerenciaDiaria } from "./modulos/aprendizaje.js";
+import { identificarUsuario, nombreUsuario } from "./modulos/identidadUsuario.js";
+
+import { hablar } from "./modulos/voz.js";
+import { manejarComandoOffline, respuestaRapidaBoton } from "./modulos/comandosOffline.js";
+import { manejarComandoOnline } from "./modulos/comandosOnline.js";
+import { registrarFrase, predecirIntencion } from "./modulos/aprendizaje.js";
 import { prepararBuscador } from "./modulos/buscador.js";
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+// ================================
+// ELEMENTOS DOM
+// ================================
+const btnHablar = document.getElementById("btnHablar");
+const estadoVoz = document.getElementById("estadoVoz");
+const textoUsuario = document.getElementById("textoUsuario");
+const textoNina = document.getElementById("textoNina");
 
-const statusEl = document.getElementById("status");
-const micBtn = document.getElementById("micBtn");
-const textoUsuarioEl = document.getElementById("textoUsuario");
-const textoNinaEl = document.getElementById("textoNina");
-
-let recognizer = null;
-let escuchando = false;
-
+// ================================
+// PREPARAR BUSCADOR GOOGLE
+// ================================
 prepararBuscador();
 
-document.querySelectorAll(".small-btn[data-accion]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const accion = btn.getAttribute("data-accion");
-    textoUsuarioEl.textContent = "(botón " + accion + ")";
+// ================================
+// RESPUESTA POR BOTONES OFFLINE
+// ================================
+document.querySelectorAll(".btn-small[data-accion]").forEach(boton => {
+  boton.addEventListener("click", () => {
+    const accion = boton.getAttribute("data-accion");
+    textoUsuario.textContent = `(botón ${accion})`;
     respuestaRapidaBoton(accion);
   });
 });
 
-/// ===== RECONOCIMIENTO DE VOZ ===== ///
-if (!SpeechRecognition) {
-  statusEl.textContent = "Tu navegador no soporta reconocimiento por voz.";
-  micBtn.disabled = true;
-} else {
-  recognizer = new SpeechRecognition();
-  recognizer.lang = "es-AR";
-  recognizer.interimResults = false;
-
-  recognizer.onstart = () => {
-    escuchando = true;
-    micBtn.classList.add("listening");
-    statusEl.textContent = "Te escucho…";
-  };
-
-  recognizer.onend = () => {
-    escuchando = false;
-    micBtn.classList.remove("listening");
-    statusEl.textContent = "Listo. Tocá si querés hablar de nuevo.";
-  };
-
-  recognizer.onerror = (e) => {
-    statusEl.textContent = "Error escuchando. Probá otra vez.";
-  };
-
-  recognizer.onresult = (event) => {
-    const frase = event.results[0][0].transcript;
-    textoUsuarioEl.textContent = frase;
-    procesarEntrada(frase);
-  };
-
-  micBtn.disabled = false;
-}
-
-micBtn.addEventListener("click", () => {
-  if (!navigator.onLine) {
-    statusEl.textContent = "Sin internet: la voz no funciona.";
-    return;
-  }
-  if (!escuchando) recognizer.start();
-  else recognizer.stop();
+// ================================
+// BOTÓN PARA ACTIVAR MICRÓFONO
+// ================================
+btnHablar.addEventListener("click", () => {
+  iniciarEscuchaContinua();
+  estadoVoz.textContent = "Escuchando… (modo continuo activado)";
 });
 
-/// ===== PROCESAR ENTRADA POR VOZ ===== ///
-function procesarEntrada(fraseRaw) {
-  const frase = fraseRaw.toLowerCase().trim();
+// ================================
+// PROCESAR RESULTADO DE VOZ
+// ================================
+reconocimiento.onresult = (event) => {
+  const frase = event.results[0][0].transcript.toLowerCase();
+  textoUsuario.textContent = frase;
+
+  // Aprendizaje
+  registrarFrase(frase);
+
+  // Identificación del usuario
+  identificarUsuario(frase);
+
+  // Wake-word
   const { textoLimpio, tieneWake } = procesarWakeWord(frase);
 
-  registrarFrase(frase); // aprendizaje
+  if (!tieneWake) return; // ignorar ruido o frases sin activar a Nina
 
-  if (!tieneWake) {
-    hablar("Decime Nina antes de pedirme algo.");
+  procesarEntrada(textoLimpio);
+};
+
+// ================================
+// PROCESADOR DE ENTRADA
+// ================================
+function procesarEntrada(frase) {
+
+  if (!frase || frase.trim() === "") {
+    hablar("Sí, decime.");
     return;
   }
 
-  // 1) Predicción Inteligente Offline
-  const intencion = predecirIntencion(textoLimpio);
+  // PREDICCIÓN INTELIGENTE (offline)
+  const intencion = predecirIntencion(frase);
 
   if (intencion && manejarComandoOffline(intencion)) {
     return;
   }
 
-  // 2) Intento offline normal
-  if (manejarComandoOffline(textoLimpio)) return;
+  // INTENTO OFFLINE NORMAL
+  if (manejarComandoOffline(frase)) {
+    return;
+  }
 
-  // 3) Online
-  if (navigator.onLine && manejarComandoOnline(textoLimpio)) return;
+  // INTENTO ONLINE
+  if (navigator.onLine && manejarComandoOnline(frase)) {
+    return;
+  }
 
-  // 4) IA futura
-  hablar("No entendí bien. Probá preguntarme la hora o el día.");
+  // IA (Gemini) — futuro
+  hablar("No entendí bien. Más adelante voy a poder ayudarte mejor gracias a la inteligencia artificial.");
 }
