@@ -1,9 +1,8 @@
-// js/nina.js
 import { hablar } from "./modulos/voz.js";
 import { procesarWakeWord } from "./modulos/wakeword.js";
-import { manejarComandoOffline } from "./modulos/comandosOffline.js";
+import { manejarComandoOffline, respuestaRapidaBoton } from "./modulos/comandosOffline.js";
 import { manejarComandoOnline } from "./modulos/comandosOnline.js";
-import { respuestaRapidaBoton } from "./modulos/comandosOffline.js";
+import { registrarFrase, predecirIntencion, sugerenciaDiaria } from "./modulos/aprendizaje.js";
 import { prepararBuscador } from "./modulos/buscador.js";
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
@@ -16,107 +15,84 @@ const textoNinaEl = document.getElementById("textoNina");
 let recognizer = null;
 let escuchando = false;
 
-// Inicializar buscador de Google
 prepararBuscador();
 
-// Botones de acciones rápidas (offline / sin voz)
 document.querySelectorAll(".small-btn[data-accion]").forEach(btn => {
   btn.addEventListener("click", () => {
     const accion = btn.getAttribute("data-accion");
-    textoUsuarioEl.textContent = "(botón: " + accion + ")";
+    textoUsuarioEl.textContent = "(botón " + accion + ")";
     respuestaRapidaBoton(accion);
   });
 });
 
-// --- Inicializar reconocimiento de voz si está disponible ---
+/// ===== RECONOCIMIENTO DE VOZ ===== ///
 if (!SpeechRecognition) {
-  statusEl.textContent = "Este navegador no soporta reconocimiento de voz. Usá los botones de abajo.";
-  statusEl.classList.add("error");
+  statusEl.textContent = "Tu navegador no soporta reconocimiento por voz.";
   micBtn.disabled = true;
 } else {
   recognizer = new SpeechRecognition();
-  recognizer.lang = "es-AR";        // voz argentina
+  recognizer.lang = "es-AR";
   recognizer.interimResults = false;
-  recognizer.maxAlternatives = 1;
 
   recognizer.onstart = () => {
     escuchando = true;
     micBtn.classList.add("listening");
-    statusEl.textContent = "Te estoy escuchando. Hablá claro y despacio.";
+    statusEl.textContent = "Te escucho…";
   };
 
   recognizer.onend = () => {
     escuchando = false;
     micBtn.classList.remove("listening");
-    if (navigator.onLine) {
-      statusEl.textContent = "Listo. Si querés, tocá de nuevo para hablar.";
-    } else {
-      statusEl.textContent = "Sin conexión. Podés usar los botones de abajo.";
-      statusEl.classList.add("error");
-    }
+    statusEl.textContent = "Listo. Tocá si querés hablar de nuevo.";
   };
 
-  recognizer.onerror = (event) => {
-    console.error("Error reconocimiento:", event.error);
-    statusEl.textContent = "Hubo un problema al escuchar. Probá otra vez o usá los botones.";
-    statusEl.classList.add("error");
-    escuchando = false;
-    micBtn.classList.remove("listening");
+  recognizer.onerror = (e) => {
+    statusEl.textContent = "Error escuchando. Probá otra vez.";
   };
 
   recognizer.onresult = (event) => {
-    const texto = event.results[0][0].transcript;
-    textoUsuarioEl.textContent = texto;
-    manejarEntradaPorVoz(texto);
+    const frase = event.results[0][0].transcript;
+    textoUsuarioEl.textContent = frase;
+    procesarEntrada(frase);
   };
 
-  if (navigator.onLine) {
-    statusEl.textContent = "Tocá el botón para que te escuche.";
-  } else {
-    statusEl.textContent = "Sin conexión. Podés usar los botones de abajo.";
-    statusEl.classList.add("error");
-  }
   micBtn.disabled = false;
 }
 
-// Click en botón de micrófono
 micBtn.addEventListener("click", () => {
-  if (!recognizer) return;
   if (!navigator.onLine) {
-    statusEl.textContent = "No hay conexión. Uso por voz no disponible. Usá los botones.";
-    statusEl.classList.add("error");
+    statusEl.textContent = "Sin internet: la voz no funciona.";
     return;
   }
-  if (!escuchando) {
-    recognizer.start();
-  } else {
-    recognizer.stop();
-  }
+  if (!escuchando) recognizer.start();
+  else recognizer.stop();
 });
 
-// --- Manejar lo que dice la persona por voz ---
-function manejarEntradaPorVoz(fraseRaw) {
+/// ===== PROCESAR ENTRADA POR VOZ ===== ///
+function procesarEntrada(fraseRaw) {
   const frase = fraseRaw.toLowerCase().trim();
-
-  // Primero procesamos wake word (Nina / hola + variantes)
   const { textoLimpio, tieneWake } = procesarWakeWord(frase);
 
+  registrarFrase(frase); // aprendizaje
+
   if (!tieneWake) {
-    hablar("Si querés que te ayude, empezá la frase diciendo Nina o Hola Nina.");
+    hablar("Decime Nina antes de pedirme algo.");
     return;
   }
 
-  // 1) Intentar con comandos offline (siempre disponibles)
-  const manejadoOffline = manejarComandoOffline(textoLimpio);
-  if (manejadoOffline) return;
+  // 1) Predicción Inteligente Offline
+  const intencion = predecirIntencion(textoLimpio);
 
-  // 2) Si hay internet, probar comandos online (buscador, etc.)
-  if (navigator.onLine) {
-    const manejadoOnline = manejarComandoOnline(textoLimpio);
-    if (manejadoOnline) return;
+  if (intencion && manejarComandoOffline(intencion)) {
+    return;
   }
 
-  // 3) Si en el futuro activamos IA, acá iría la llamada a ia.js
-  // Por ahora, respuesta genérica:
-  hablar("No estoy segura de haber entendido. Probá preguntarme la hora, el día o pedirme que te recomiende un juego.");
+  // 2) Intento offline normal
+  if (manejarComandoOffline(textoLimpio)) return;
+
+  // 3) Online
+  if (navigator.onLine && manejarComandoOnline(textoLimpio)) return;
+
+  // 4) IA futura
+  hablar("No entendí bien. Probá preguntarme la hora o el día.");
 }
