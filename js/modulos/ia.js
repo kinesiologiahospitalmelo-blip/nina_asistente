@@ -1,46 +1,46 @@
-// js/modulos/ia.js
 import { hablar } from "./voz.js";
 
-const API_KEY = "AIzaSyCBmGcrSH1F4Dr7qzLWPWFPbqjcUd2_LGI";
+// URL del Worker Cloudflare
+const WORKER_URL = "https://plain-morning-23f8.direccion-deporte-lanus.workers.dev/gemini";
 
 export async function responderConIA(pregunta, contexto = "") {
-  if (!API_KEY) {
-    hablar("La inteligencia artificial no está configurada.");
-    return;
-  }
-
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateText?key=${API_KEY}`;
-
     const body = {
-      model: "gemini-1.5-flash",
-      prompt: {
-        text: `Contexto:\n${contexto}\n\nPregunta del usuario:\n${pregunta}`
-      }
+      contents: [
+        {
+          parts: [
+            {
+              text: `Contexto: ${contexto}\nPregunta: ${pregunta}`
+            }
+          ]
+        }
+      ]
     };
 
-    const respuesta = await fetch(url, {
+    const resp = await fetch(WORKER_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
 
-    const data = await respuesta.json();
-
-    if (!data || !data.candidates || !data.candidates[0].outputText) {
-      console.error("DATA IA:", data);
-      hablar("No pude obtener respuesta de la IA.");
+    if (!resp.ok) {
+      hablar("La IA no pudo responder en este momento.");
       return;
     }
 
-    const texto = data.candidates[0].outputText;
+    const data = await resp.json();
+
+    if (!data || !data.candidates || !data.candidates[0].content) {
+      hablar("La IA no entendió la pregunta.");
+      return;
+    }
+
+    const texto = data.candidates[0].content.parts[0].text.trim();
     hablar(texto);
     return texto;
 
-  } catch (e) {
-    console.error("IA ERROR:", e);
-    hablar("La IA tuvo un problema para conectarse.");
+  } catch (err) {
+    console.error("Error IA:", err);
+    hablar("Hubo un problema conectando la inteligencia artificial.");
   }
 }
