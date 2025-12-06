@@ -1,16 +1,11 @@
-// =====================================
-// Identidad del Usuario — Nina v2
-// =====================================
+import { hablar } from "./voz.js";
 
-// Variantes del nombre de tu mamá
 const variantes = [
   "mercedes", "merce", "mecha", "tata", "tatonia", "edes"
 ];
 
-// Nombre por defecto
 let nombreDetectado = localStorage.getItem("nina_usuario") || null;
 
-// Normaliza texto
 function normalizar(t) {
   return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
@@ -22,10 +17,10 @@ export function identificarUsuario(frase) {
     if (f.includes(v)) {
       nombreDetectado = v;
       localStorage.setItem("nina_usuario", v);
+      hablar(saludoPersonalizado());
       return true;
     }
   }
-
   return false;
 }
 
@@ -33,7 +28,6 @@ export function nombreUsuario() {
   return nombreDetectado || "Mercedes";
 }
 
-// Saludo personalizado
 export function saludoPersonalizado() {
   const n = nombreUsuario();
 
@@ -41,8 +35,8 @@ export function saludoPersonalizado() {
     case "merce": return "Hola Merce, ¿cómo estás hoy?";
     case "mecha": return "Hola Mecha, estoy acá para ayudarte.";
     case "tata": return "Hola Tata, ¿cómo te sentís?";
-    case "tatonia": return "Hola Tatonia querida, decime qué necesitas.";
-    case "edes": return "Hola Edes, ¿cómo estás?";
+    case "tatonia": return "Hola Tatonia querida, ¿cómo estás?";
+    case "edes": return "Hola Edes, ¿cómo andás?";
     default: return "Hola Mercedes, ¿en qué te puedo ayudar?";
   }
 }
