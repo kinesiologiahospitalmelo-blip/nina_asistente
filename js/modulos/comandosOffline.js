@@ -5,8 +5,8 @@ import { llamarContacto, llamarEmergencia } from "./llamadas.js";
 
 // Poné acá los números reales
 const telefonos = {
-  rodrigo: "NUMERO_RODRIGO",
-  sara:    "NUMERO_SARA",
+  rodrigo: "91168543959",
+  sara:    "91167648978",
   gusi:    "NUMERO_GUSI",
   diego:   "NUMERO_DIEGO"
 };
