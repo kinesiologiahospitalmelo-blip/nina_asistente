@@ -29,7 +29,6 @@ function normalizar(t) {
 export function identificarUsuario(frase) {
   const f = normalizar(frase);
 
-  // Solo entra si la frase tiene "soy", "habla", "acá"
   const esIdentificacion =
     f.includes("soy ") ||
     f.includes("habla") ||
@@ -38,14 +37,12 @@ export function identificarUsuario(frase) {
 
   if (!esIdentificacion) return false;
 
-  // Buscar nombre
   for (const key in nombresValidos) {
     if (f.includes(key)) {
       return saludarNombre(nombresValidos[key]);
     }
   }
 
-  // Si dijo “soy X” pero X NO existe:
   hablar("Ese nombre no está registrado, no te puedo ayudar.");
   return true;
 }
