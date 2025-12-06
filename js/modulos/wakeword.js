@@ -1,27 +1,38 @@
-// js/modulos/wakeword.js
+// ================================
+// Wakeword Inteligente — Nina v2
+// ================================
 
-const variantesNina = ["nina", "niña", "mina", "ina", "nino", "ninaa", "ninna"];
-const variantesHola = ["hola", "ola", "holaa", "ola nina", "hola nina"];
+// Variantes que activan a Nina
+const wakewords = [
+  "nina", "niña", "inna", "ninna", "ninaa", "mina", "ina",
+  "hola nina", "hola", "ola", "holaa"
+];
+
+// Normaliza texto: sin tildes, todo minúsculas
+function normalizar(texto) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
 
 export function procesarWakeWord(frase) {
-  let tieneWake = false;
+  const f = normalizar(frase);
 
-  if (variantesNina.some(v => frase.includes(v))) {
-    tieneWake = true;
+  // Detectar si contiene wakeword
+  let tieneWake = wakewords.some(w => f.includes(w));
+
+  if (!tieneWake) {
+    return { textoLimpio: frase, tieneWake: false };
   }
 
-  if (variantesHola.some(v => frase.includes(v))) {
-    tieneWake = true;
-  }
+  // Quitar la palabra de activación para quedarse con intención
+  let limpio = f;
+  wakewords.forEach(w => {
+    limpio = limpio.replace(w, "");
+  });
 
-  let textoLimpio = frase;
+  limpio = limpio.trim();
 
-  if (tieneWake) {
-    [...variantesNina, ...variantesHola].forEach(v => {
-      textoLimpio = textoLimpio.replace(v, "");
-    });
-    textoLimpio = textoLimpio.trim();
-  }
-
-  return { textoLimpio, tieneWake };
+  return { textoLimpio: limpio, tieneWake: true };
 }
