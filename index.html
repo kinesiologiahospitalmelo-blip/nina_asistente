@@ -2,89 +2,97 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Nina – Asistente</title>
+  <title>Nina – Asistente Personal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/nina.css" />
 </head>
 <body>
-  <header class="topbar">
-    <span>🧠</span>
-    <div>Nina – Asistente</div>
-  </header>
 
-  <main class="main">
-    <h1 class="title">Hablar con Nina</h1>
-    <p class="subtitle">
-      Tocá el botón grande para hablar (si hay internet).<br />
-      O usá los botones de abajo si no querés usar la voz.
-    </p>
+<!-- ==========================
+        SPLASH SCREEN
+=========================== -->
+<div id="splash" class="splash">
+  <div class="splash-content">
+    <div class="splash-avatar">🧑‍🦳</div>
+    <div class="splash-title">Hola, soy Nina</div>
+    <div class="splash-subtitle">Tu asistente personal</div>
+    <div class="splash-loader"></div>
+  </div>
+</div>
 
-    <!-- Tarjeta principal de Nina -->
-    <section class="card">
-      <div class="nina-avatar">🧑‍🦳</div>
-      <div class="nina-name">Nina</div>
-      <div id="status" class="status">Preparando el micrófono...</div>
+<!-- Se remueve automáticamente -->
+<script>
+  setTimeout(() => {
+    const s = document.getElementById("splash");
+    if (s) s.remove();
+  }, 3500);
+</script>
 
-      <button id="micBtn" class="mic-btn" disabled>
-        <span>🎙️</span>
-        Hablar con Nina
-      </button>
+<!-- ==========================
+         APP PRINCIPAL
+=========================== -->
 
-      <p class="hint">
-        Empezá diciendo <b>“Nina...”</b> o <b>“Hola...”</b> para que sepa que le hablás a ella.
-      </p>
-    </section>
+<header class="topbar">
+  <span>🧠</span>
+  <div>Nina – Asistente</div>
+</header>
 
-    <!-- Conversación -->
-    <section class="panel">
-      <div class="panel-title">Última conversación</div>
-      <div class="row">
-        <span class="label">Vos dijiste:</span>
-        <span id="textoUsuario">—</span>
-      </div>
-      <div class="row">
-        <span class="label">Nina respondió:</span>
-        <span id="textoNina">—</span>
-      </div>
-    </section>
+<main class="main">
 
-    <!-- Botones offline / sin voz -->
-    <section class="panel offline-section">
-      <div class="panel-title">Usar a Nina sin hablar</div>
-      <p>Si el micrófono no funciona o no hay internet, podés usar estos botones:</p>
-      <div class="btn-grid">
-        <button class="small-btn" data-accion="hora">¿Qué hora es?</button>
-        <button class="small-btn" data-accion="dia">¿Qué día es hoy?</button>
-        <button class="small-btn" data-accion="fecha">¿Qué fecha es?</button>
-        <button class="small-btn" data-accion="dia_completo">¿Cómo es mi día?</button>
-        <button class="small-btn" data-accion="donde">¿Dónde estoy?</button>
-        <button class="small-btn" data-accion="juego">Recomendame un juego</button>
-        <button class="small-btn" data-accion="crucigrama">Quiero jugar al crucigrama</button>
-        <button class="small-btn" data-accion="memoria">Quiero jugar a la memoria</button>
-        <button class="small-btn" data-accion="llamar_hijos">Llamá a mis hijos</button>
-        <button class="small-btn" data-accion="emergencia_107">Llamá al 107</button>
-        <button class="small-btn" data-accion="emergencia_911">Llamá al 911</button>
-        <button class="small-btn" data-accion="mal">Me siento mal</button>
-      </div>
-    </section>
+<h1 class="title">Hablar con Nina</h1>
+<p class="subtitle">Tocá el botón para hablar, o usá las opciones offline.</p>
 
-    <!-- Buscar en Google -->
-    <section class="panel">
-      <div class="panel-title">Buscar algo en Google</div>
-      <p>Escribí algo y Nina abre la búsqueda:</p>
-      <input id="googleTexto" class="input-text" type="text" placeholder="Ej: recetas de pollo" />
-      <button class="small-btn" id="googleBtn">Buscar</button>
-    </section>
+<section class="card">
+  <div class="nina-avatar">🧑‍🦳</div>
+  <div class="nina-name">Nina</div>
+  <div id="status" class="status">Preparando micrófono...</div>
 
-    <!-- Lugar para futuras preguntas/IA -->
-    <section class="panel">
-      <div class="panel-title">Más adelante…</div>
-      <p>
-        Acá más adelante vamos a conectar con IA (ChatGPT / Gemini) para que Nina responda preguntas más complejas.
-      </p>
-    </section>
-  </main>
+  <button id="micBtn" class="mic-btn" disabled>
+    <span>🎙️</span>
+    Hablar con Nina
+  </button>
 
-  <script type="module" src="js/nina.js"></script>
+  <p class="hint">
+    Empezá diciendo <b>“Nina…”</b> o <b>“Hola…”</b>
+  </p>
+</section>
+
+<section class="panel">
+  <div class="panel-title">Última conversación</div>
+  <div class="row"><span class="label">Vos:</span> <span id="textoUsuario">—</span></div>
+  <div class="row"><span class="label">Nina:</span> <span id="textoNina">—</span></div>
+</section>
+
+<section class="panel offline-section">
+  <div class="panel-title">Usar sin voz (offline)</div>
+  <div class="btn-grid">
+    <button class="small-btn" data-accion="hora">¿Qué hora es?</button>
+    <button class="small-btn" data-accion="dia">¿Qué día es hoy?</button>
+    <button class="small-btn" data-accion="fecha">¿Qué fecha es?</button>
+    <button class="small-btn" data-accion="dia_completo">¿Cómo es mi día?</button>
+    <button class="small-btn" data-accion="donde">¿Dónde estoy?</button>
+    <button class="small-btn" data-accion="juego">Recomendame un juego</button>
+    <button class="small-btn" data-accion="crucigrama">Crucigrama</button>
+    <button class="small-btn" data-accion="memoria">Memoria</button>
+    <button class="small-btn" data-accion="llamar_hijos">Llamar a mis hijos</button>
+    <button class="small-btn" data-accion="emergencia_107">Llamar 107</button>
+    <button class="small-btn" data-accion="emergencia_911">Llamar 911</button>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title">Buscar en Google</div>
+  <input id="googleTexto" class="input-text" type="text" placeholder="Ej: ejercicios de memoria" />
+  <button id="googleBtn" class="small-btn">Buscar</button>
+</section>
+
+<section class="panel">
+  <div class="panel-title">Futuro (IA)</div>
+  <p>Nina podrá conversar libremente cuando activemos IA híbrida.</p>
+</section>
+
+</main>
+
+<script type="module" src="js/nina.js"></script>
 </body>
 </html>
