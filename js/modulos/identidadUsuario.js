@@ -1,77 +1,78 @@
 // js/modulos/identidadUsuario.js
 import { hablar } from "./voz.js";
 
-const nombres = {
-  // Mercedes + apodos
-  mercedes: "Mercedes",
-  merce: "Merce",
-  mecha: "Mecha",
-  tata: "Tata",
-  tatonia: "Tatonia",
-  edes: "Edes",
+const nombresValidos = {
+  mercedes:"Mercedes",
+  merce:"Merce",
+  mecha:"Mecha",
+  tata:"Tata",
+  tatonia:"Tatonia",
+  edes:"Edes",
 
-  // Hijos
-  rodrigo: "Rodrigo",
-  sara: "Sara",
-  gusi: "Gusi",
+  rodrigo:"Rodrigo",
+  sara:"Sara",
+  gusi:"Gusi",
 
-  // Yerno
-  diego: "Diego",
+  victoria:"Victoria",
+  valentina:"Valentina",
+  morena:"Morena",
+  lucia:"Lucía",
+  manu:"Manu",
 
-  // Nietos
-  victoria: "Victoria",
-  valentina: "Valentina",
-  morena: "Morena",
-  lucia: "Lucía",
-  manu: "Manu"
+  diego:"Diego"
 };
 
 function normalizar(t) {
-  return t.toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+  return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 export function identificarUsuario(frase) {
   const f = normalizar(frase);
 
-  // Frases típicas: “soy mercedes”, “habla rodrigo”, “acá sara”
-  for (const key in nombres) {
+  // Solo entra si la frase tiene "soy", "habla", "acá"
+  const esIdentificacion =
+    f.includes("soy ") ||
+    f.includes("habla") ||
+    f.includes("aca") ||
+    f.includes("acá");
+
+  if (!esIdentificacion) return false;
+
+  // Buscar nombre
+  for (const key in nombresValidos) {
     if (f.includes(key)) {
-      saludarNombre(nombres[key]);
-      return true;
+      return saludarNombre(nombresValidos[key]);
     }
   }
-  return false;
+
+  // Si dijo “soy X” pero X NO existe:
+  hablar("Ese nombre no está registrado, no te puedo ayudar.");
+  return true;
 }
 
-export function saludarNombre(nombre) {
-  const apodosMercedes = ["Mercedes","Merce","Mecha","Tata","Tatonia","Edes"];
+function saludarNombre(nombre) {
+  const apodos = ["Mercedes","Merce","Mecha","Tata","Tatonia","Edes"];
 
-  // Mercedes
-  if (apodosMercedes.includes(nombre)) {
+  if (apodos.includes(nombre)) {
     hablar(`Hola ${nombre}, ¿cómo estás hoy?`);
-    return;
+    return true;
   }
 
-  // Hijos
   if (["Rodrigo","Sara","Gusi"].includes(nombre)) {
-    hablar(`Hola ${nombre}, me alegra escucharte.`);
-    return;
+    hablar(`Hola ${nombre}, qué gusto escucharte.`);
+    return true;
   }
 
-  // Nietos
   if (["Victoria","Valentina","Morena","Lucía","Manu"].includes(nombre)) {
-    hablar(`Hola ${nombre}, qué alegría escucharte.`);
-    return;
+    hablar(`Hola ${nombre}, ¡qué alegría escucharte!`);
+    return true;
   }
 
-  // Yerno
   if (nombre === "Diego") {
-    hablar("Hola Diego, ¿todo bien por ahí?");
-    return;
+    hablar("Hola Diego, ¿cómo va todo por ahí?");
+    return true;
   }
 
-  // Otros
-  hablar("No te conozco, que tengas un lindo día.");
+  hablar("Ese nombre no está registrado, no te puedo ayudar.");
+  return true;
 }
