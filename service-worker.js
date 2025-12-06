@@ -1,59 +1,54 @@
-// NINA ASISTENTE - Service Worker FINAL
+// ==========================================
+// Service Worker — Nina v2
+// ==========================================
 
-const CACHE_NAME = "nina-cache-v1";
-const FILES_TO_CACHE = [
-  "/",
-  "/index.html",
-  "/manifest.json",
+const CACHE_NAME = "nina-cache-v2";
+const URLS_TO_CACHE = [
+  "/nina_asistente/",
+  "/nina_asistente/index.html",
+  "/nina_asistente/css/nina.css",
+  "/nina_asistente/js/nina.js",
+  "/nina_asistente/js/listenerContinuo.js",
 
-  // Estilos
-  "/css/nina.css",
-
-  // Archivos JS principales
-  "/js/nina.js",
-
-  // Módulos
-  "/js/modulos/voz.js",
-  "/js/modulos/wakeword.js",
-  "/js/modulos/comandosOffline.js",
-  "/js/modulos/comandosOnline.js",
-  "/js/modulos/gps.js",
-  "/js/modulos/llamadas.js",
-  "/js/modulos/buscador.js",
-  "/js/modulos/aprendizaje.js",
-  "/js/modulos/ia.js",
-
-  // Iconos
-  "/icons/icon-72.png",
-  "/icons/icon-96.png",
-  "/icons/icon-128.png",
-  "/icons/icon-144.png",
-  "/icons/icon-152.png",
-  "/icons/icon-192.png",
-  "/icons/icon-384.png",
-  "/icons/icon-512.png"
+  "/nina_asistente/js/modulos/wakeword.js",
+  "/nina_asistente/js/modulos/voz.js",
+  "/nina_asistente/js/modulos/identidadUsuario.js",
+  "/nina_asistente/js/modulos/comandosOffline.js",
+  "/nina_asistente/js/modulos/comandosOnline.js",
+  "/nina_asistente/js/modulos/aprendizaje.js",
+  "/nina_asistente/js/modulos/buscador.js",
+  "/nina_asistente/js/modulos/gps.js",
+  "/nina_asistente/js/modulos/llamadas.js",
+  "/nina_asistente/js/modulos/ia.js"
 ];
 
-// INSTALACIÓN
-self.addEventListener("install", (event) => {
+// Instalación: cache inicial
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(URLS_TO_CACHE);
+    })
   );
 });
 
-// ACTIVACIÓN
-self.addEventListener("activate", (event) => {
+// Activación: limpia caches viejos
+self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(
+        keys.map(k => {
+          if (k !== CACHE_NAME) return caches.delete(k);
+        })
+      )
     )
   );
 });
 
-// FETCH
-self.addEventListener("fetch", (event) => {
+// Fetch: usa caché cuando no hay internet
+self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(resp => resp || fetch(event.request))
+    caches.match(event.request).then(resp => {
+      return resp || fetch(event.request);
+    })
   );
 });
