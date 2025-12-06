@@ -1,7 +1,7 @@
 import { hablar } from "./modulos/voz.js";
 import { procesarWakeWord } from "./modulos/wakeword.js";
-import { manejarComandoOffline, respuestaRapidaBoton } from "./modulos/comandosOffline.js";
-import { manejarComandoOnline } from "./modulos/comandosOnline.js";
+import { manejarComandoOffline, respuestaRapidaBoton } from "./modulos/comandosoffline.js";
+import { manejarComandoOnline } from "./modulos/comandosonline.js";
 import { registrarFrase, predecirIntencion, sugerenciaDiaria } from "./modulos/aprendizaje.js";
 import { prepararBuscador } from "./modulos/buscador.js";
 
