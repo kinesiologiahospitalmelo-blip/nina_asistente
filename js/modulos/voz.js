@@ -1,21 +1,27 @@
-// js/modulos/voz.js
-let vozSeleccionada = null;
+// ============================================
+// Voz Natural — Nina v2
+// ============================================
 
-function elegirVoz() {
+let vozElegida = null;
+
+// Normalizar selección de voz
+function seleccionarVoz() {
   const voces = window.speechSynthesis.getVoices();
-  // Buscamos voces en español, preferentemente latino / Google
+
+  // Preferencias en español (mejor calidad)
   const candidatas = voces.filter(v =>
     v.lang.startsWith("es") &&
-    (!v.name.toLowerCase().includes("compact"))
+    !v.name.toLowerCase().includes("compact")
   );
+
   if (candidatas.length > 0) return candidatas[0];
   return voces[0] || null;
 }
 
-// Algunos navegadores cargan las voces de forma asíncrona
+// Chrome carga voces asíncronas
 if ("speechSynthesis" in window) {
   window.speechSynthesis.onvoiceschanged = () => {
-    vozSeleccionada = elegirVoz();
+    vozElegida = seleccionarVoz();
   };
 }
 
@@ -26,9 +32,12 @@ export function hablar(texto) {
   if (!("speechSynthesis" in window)) return;
 
   const u = new SpeechSynthesisUtterance(texto);
-  u.lang = "es-AR"; // preferencia argentina
-  if (vozSeleccionada) u.voice = vozSeleccionada;
+  u.lang = "es-AR";
   u.rate = 1;
+
+  if (vozElegida) u.voice = vozElegida;
+
+  // Stop previous speech
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(u);
 }
