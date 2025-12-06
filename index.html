@@ -4,7 +4,18 @@
   <meta charset="UTF-8" />
   <title>Nina – Asistente Personal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Manifest para PWA -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Icono base -->
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="css/nina.css" />
+
+  <!-- Color barra superior móvil -->
+  <meta name="theme-color" content="#2f7b68">
 </head>
 <body>
 
@@ -20,12 +31,11 @@
   </div>
 </div>
 
-<!-- Se remueve automáticamente -->
 <script>
-  setTimeout(() => {
-    const s = document.getElementById("splash");
-    if (s) s.remove();
-  }, 3500);
+setTimeout(() => {
+  const s = document.getElementById("splash");
+  if (s) s.remove();
+}, 3500);
 </script>
 
 <!-- ==========================
@@ -93,6 +103,22 @@
 
 </main>
 
+<!-- ==========================
+    JS PRINCIPAL (Módulos)
+=========================== -->
 <script type="module" src="js/nina.js"></script>
+
+<!-- ==========================
+    REGISTRO SERVICE WORKER
+=========================== -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("service-worker.js")
+    .then(() => console.log("Service Worker registrado"))
+    .catch(e => console.error("SW Error:", e));
+}
+</script>
+
 </body>
 </html>
