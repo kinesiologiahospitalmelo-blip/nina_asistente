@@ -1,3 +1,4 @@
+// js/modulos/gps.js
 import { hablar } from "./voz.js";
 
 export function obtenerUbicacionBasica() {
@@ -19,16 +20,21 @@ export function obtenerUbicacionBasica() {
         const data = await resp.json();
 
         const calle = data.address.road || "una calle sin nombre";
-        const ciudad = data.address.city || data.address.town || data.address.village || "una zona desconocida";
+        const numero = data.address.house_number || "";
         const barrio = data.address.suburb || "";
+        const ciudad = data.address.city || data.address.town || data.address.village || "una zona desconocida";
         const provincia = data.address.state || "";
 
-        hablar(`Estás cerca de ${calle}, en ${barrio}, ${ciudad}, ${provincia}.`);
+        let texto = `Estás cerca de ${calle}`;
+        if (numero) texto += ` ${numero}`;
+        if (barrio) texto += `, en ${barrio}`;
+        texto += `, ${ciudad}, ${provincia}.`;
+
+        hablar(texto);
       } catch (e) {
         hablar("No pude obtener una dirección exacta, pero detecté tu ubicación aproximada.");
       }
     },
-
     () => {
       hablar("No pude obtener tu ubicación ahora.");
     }
