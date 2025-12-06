@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Nina – Asistente por voz</title>
+  <title>Nina – Asistente</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="nina.css" />
+  <link rel="stylesheet" href="css/nina.css" />
 </head>
 <body>
   <header class="topbar">
@@ -31,7 +31,7 @@
       </button>
 
       <p class="hint">
-        Empezá siempre diciendo <b>“Nina...”</b> para que sepa que le hablás a ella.
+        Empezá diciendo <b>“Nina...”</b> o <b>“Hola...”</b> para que sepa que le hablás a ella.
       </p>
     </section>
 
@@ -53,24 +53,38 @@
       <div class="panel-title">Usar a Nina sin hablar</div>
       <p>Si el micrófono no funciona o no hay internet, podés usar estos botones:</p>
       <div class="btn-grid">
-        <button class="small-btn" onclick="respuestaRapida('hora')">¿Qué hora es?</button>
-        <button class="small-btn" onclick="respuestaRapida('dia')">¿Qué día es hoy?</button>
-        <button class="small-btn" onclick="respuestaRapida('dia_completo')">¿Cómo es mi día?</button>
-        <button class="small-btn" onclick="respuestaRapida('juego')">Recomendame un juego</button>
-        <button class="small-btn" onclick="respuestaRapida('crucigrama')">Quiero jugar al crucigrama</button>
-        <button class="small-btn" onclick="respuestaRapida('memoria')">Quiero jugar a la memoria</button>
-        <button class="small-btn" onclick="respuestaRapida('mal')">Me siento mal</button>
+        <button class="small-btn" data-accion="hora">¿Qué hora es?</button>
+        <button class="small-btn" data-accion="dia">¿Qué día es hoy?</button>
+        <button class="small-btn" data-accion="fecha">¿Qué fecha es?</button>
+        <button class="small-btn" data-accion="dia_completo">¿Cómo es mi día?</button>
+        <button class="small-btn" data-accion="donde">¿Dónde estoy?</button>
+        <button class="small-btn" data-accion="juego">Recomendame un juego</button>
+        <button class="small-btn" data-accion="crucigrama">Quiero jugar al crucigrama</button>
+        <button class="small-btn" data-accion="memoria">Quiero jugar a la memoria</button>
+        <button class="small-btn" data-accion="llamar_hijos">Llamá a mis hijos</button>
+        <button class="small-btn" data-accion="emergencia_107">Llamá al 107</button>
+        <button class="small-btn" data-accion="emergencia_911">Llamá al 911</button>
+        <button class="small-btn" data-accion="mal">Me siento mal</button>
       </div>
     </section>
 
-    <!-- Más adelante: acá ponemos un botón para abrir la app de juegos -->
+    <!-- Buscar en Google -->
     <section class="panel">
-      <div class="panel-title">Ir a la app de juegos</div>
-      <p>Más adelante, este botón abrirá tu app de juegos cognitivos.</p>
-      <button class="small-btn" onclick="irAJuegos()">Abrir juegos</button>
+      <div class="panel-title">Buscar algo en Google</div>
+      <p>Escribí algo y Nina abre la búsqueda:</p>
+      <input id="googleTexto" class="input-text" type="text" placeholder="Ej: recetas de pollo" />
+      <button class="small-btn" id="googleBtn">Buscar</button>
+    </section>
+
+    <!-- Lugar para futuras preguntas/IA -->
+    <section class="panel">
+      <div class="panel-title">Más adelante…</div>
+      <p>
+        Acá más adelante vamos a conectar con IA (ChatGPT / Gemini) para que Nina responda preguntas más complejas.
+      </p>
     </section>
   </main>
 
-  <script src="nina.js"></script>
+  <script type="module" src="js/nina.js"></script>
 </body>
 </html>
