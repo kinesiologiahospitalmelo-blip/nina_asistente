@@ -7,7 +7,7 @@ import { manejarComandoOnline } from "./modulos/comandosOnline.js";
 import { registrarFrase, predecirIntencion } from "./modulos/aprendizaje.js";
 import { prepararBuscador } from "./modulos/buscador.js";
 
-// ====== ELEMENTOS HTML ======
+// ====== ELEMENTOS HTML CORRECTOS ======
 const btnHablar = document.getElementById("btnHablar");
 const estadoVoz = document.getElementById("estadoVoz");
 const textoUsuario = document.getElementById("textoUsuario");
@@ -20,7 +20,7 @@ const SpeechRecognition =
 let recognizer = null;
 
 if (!SpeechRecognition) {
-  estadoVoz.textContent = "Este navegador no soporta reconocimiento de voz.";
+  estadoVoz.textContent = "Este dispositivo no soporta reconocimiento de voz.";
   btnHablar.disabled = true;
 } else {
   recognizer = new SpeechRecognition();
@@ -39,7 +39,7 @@ document.querySelectorAll(".btn-small[data-accion]").forEach(btn => {
 
 prepararBuscador();
 
-// ====== EVENTOS DEL RECONOCIMIENTO ======
+// ====== EVENTOS DEL RECO ======
 if (recognizer) {
   recognizer.onstart = () => {
     estadoVoz.textContent = "Te escucho…";
@@ -52,19 +52,18 @@ if (recognizer) {
   };
 
   recognizer.onerror = () => {
-    estadoVoz.textContent = "Hubo un error, probá de nuevo.";
+    estadoVoz.textContent = "Hubo un error con el micrófono.";
   };
 
   recognizer.onresult = (event) => {
     const frase = event.results[0][0].transcript.toLowerCase().trim();
     textoUsuario.textContent = frase;
     registrarFrase(frase);
-
     procesarEntrada(frase);
   };
 }
 
-// ====== BOTÓN PARA HABLAR ======
+// ====== BOTÓN HABLAR ======
 btnHablar.addEventListener("click", () => {
   recognizer.start();
 });
@@ -72,26 +71,26 @@ btnHablar.addEventListener("click", () => {
 // ====== LÓGICA PRINCIPAL ======
 function procesarEntrada(frase) {
 
-  // 1) WAKE WORD ("nina", "hola nina")
+  // 1) WAKE WORD
   const { textoLimpio, tieneWake } = procesarWakeWord(frase);
   if (tieneWake) {
     hablar("¿Con quién hablo?");
     return;
   }
 
-  // 2) IDENTIDAD ("soy mercedes", "habla rodrigo")
+  // 2) IDENTIDAD
   if (identificarUsuario(frase)) return;
 
-  // 3) COMANDOS OFFLINE (incluye llamadas, hora, día)
+  // 3) COMANDOS OFFLINE (incluye llamadas)
   if (manejarComandoOffline(frase)) return;
 
-  // 4) INTENCIÓN (APRENDIZAJE)
+  // 4) APRENDIZAJE
   const intencion = predecirIntencion(frase);
   if (intencion && manejarComandoOffline(intencion)) return;
 
-  // 5) ONLINE (Google)
+  // 5) ONLINE (si hay internet)
   if (navigator.onLine && manejarComandoOnline(frase)) return;
 
   // 6) FALLBACK
-  hablar("No estoy segura de lo que quisiste decir. Probá preguntarme la hora.");
+  hablar("No entendí. ¿Querés que llame a alguien o te diga la hora?");
 }
