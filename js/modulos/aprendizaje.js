@@ -1,75 +1,59 @@
-// js/modulos/aprendizaje.js
+// ==========================================
+// Aprendizaje Local — Nina v2
+// ==========================================
 
-/**
- * Módulo de aprendizaje local de Nina.
- * TODO lo hace sin internet.
- * Guarda datos en localStorage o IndexedDB.
- */
+const STORAGE_KEY = "nina_memoria_local_v2";
 
-const STORAGE_KEY = "nina_memoria_local";
-
-// Estructura inicial si no existe memoria
 const memoriaInicial = {
-  historialFrases: [],      // últimas frases usadas
-  intencionesFrecuentes: {},// mapa: "hora" -> 14 usos, etc.
-  horariosUso: {},          // hora del día donde más se usa cada intención
-  estadosEmocionales: {},   // tristeza, aburrimiento, etc
-  sugerencias: [],          // sugerencias adaptativas
-  ultimaActividad: null,    // último juego recomendado
-  preferencias: {},         // preferencias de juegos o acciones
-  dias: {}                  // registro por días
+  historialFrases: [],
+  intencionesFrecuentes: {},
+  horariosUso: {},
+  preferencias: {},
 };
 
-function cargarMemoria() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) return memoriaInicial;
-  try { return JSON.parse(data); }
-  catch { return memoriaInicial; }
+function cargar() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : memoriaInicial;
+  } catch {
+    return memoriaInicial;
+  }
 }
 
-function guardarMemoria(m) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(m));
+function guardar() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(memoria));
 }
 
-let memoria = cargarMemoria();
+let memoria = cargar();
 
-/**
- * Registra una frase que dijo la persona.
- */
+// ==========================================
+// Registrar frase
+// ==========================================
 export function registrarFrase(frase, intencion = null) {
   const ahora = new Date();
-  const hora = ahora.getHours();
 
-  // Guardar frase
   memoria.historialFrases.push({
     frase,
     intencion,
-    fecha: ahora.toISOString(),
-    hora
+    fecha: ahora.toISOString()
   });
 
   if (memoria.historialFrases.length > 150)
     memoria.historialFrases = memoria.historialFrases.slice(-100);
 
-  // Registrar intención
   if (intencion) {
-    if (!memoria.intencionesFrecuentes[intencion]) {
+    if (!memoria.intencionesFrecuentes[intencion])
       memoria.intencionesFrecuentes[intencion] = 0;
-    }
-    memoria.intencionesFrecuentes[intencion]++;
 
-    // Registrar horario de uso
-    if (!memoria.horariosUso[intencion]) memoria.horariosUso[intencion] = {};
-    memoria.horariosUso[intencion][hora] =
-      (memoria.horariosUso[intencion][hora] || 0) + 1;
+    memoria.intencionesFrecuentes[intencion]++;
   }
 
-  guardarMemoria(memoria);
+  guardar();
 }
 
-/**
- * Detectar intención básica según patrones aprendidos.
- */
+// ==========================================
+// Predicción simple offline
+// ==========================================
 export function predecirIntencion(frase) {
   const f = frase.toLowerCase();
 
@@ -83,9 +67,6 @@ export function predecirIntencion(frase) {
     memoria: ["memoria"],
     mal: ["mal", "triste", "miedo"],
     llamarHijos: ["mis hijos"],
-    llamarRodrigo: ["rodrigo"],
-    llamarSara: ["sara"],
-    llamarGusi: ["gusi"],
     emergencia107: ["107"],
     emergencia911: ["911"]
   };
@@ -97,27 +78,10 @@ export function predecirIntencion(frase) {
     }
   }
 
-  // Aprendizaje: si se repite una frase desconocida, la detecta
-  const coincidencia = memoria.historialFrases.find(h => h.frase === frase);
-  if (coincidencia) {
-    registrarFrase(frase, coincidencia.intencion || null);
-    return coincidencia.intencion;
-  }
+  // Intento aprender frases repetidas
+  const match = memoria.historialFrases.find(h => h.frase === frase);
+  if (match) return match.intencion;
 
   registrarFrase(frase, null);
   return null;
-}
-
-/**
- * Sugerencias inteligentes
- */
-export function sugerenciaDiaria() {
-  const ahora = new Date();
-  const hora = ahora.getHours();
-
-  if (hora >= 6 && hora <= 10) return "Podés empezar el día con un juego de memoria suave.";
-  if (hora >= 11 && hora <= 14) return "Este es un buen momento para un crucigrama.";
-  if (hora >= 17 && hora <= 20) return "¿Querés hacer una actividad tranquila?";
-
-  return "Decime qué querés hacer y te ayudo.";
 }
