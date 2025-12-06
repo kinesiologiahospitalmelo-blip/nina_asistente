@@ -1,14 +1,18 @@
-// NINA ASISTENTE - Service Worker COMPLETO
+// NINA ASISTENTE - Service Worker FINAL
 
 const CACHE_NAME = "nina-cache-v1";
 const FILES_TO_CACHE = [
   "/",
   "/index.html",
   "/manifest.json",
+
+  // Estilos
   "/css/nina.css",
+
+  // Archivos JS principales
   "/js/nina.js",
 
-  // módulos
+  // Módulos
   "/js/modulos/voz.js",
   "/js/modulos/wakeword.js",
   "/js/modulos/comandosOffline.js",
@@ -19,7 +23,7 @@ const FILES_TO_CACHE = [
   "/js/modulos/aprendizaje.js",
   "/js/modulos/ia.js",
 
-  // íconos
+  // Iconos
   "/icons/icon-72.png",
   "/icons/icon-96.png",
   "/icons/icon-128.png",
@@ -32,35 +36,24 @@ const FILES_TO_CACHE = [
 
 // INSTALACIÓN
 self.addEventListener("install", (event) => {
-  console.log("[ServiceWorker] Instalando y cacheando archivos...");
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
 });
 
 // ACTIVACIÓN
 self.addEventListener("activate", (event) => {
-  console.log("[ServiceWorker] Activo y limpiando viejos caches...");
-
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      );
-    })
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
   );
-
-  self.clients.claim();
 });
 
-// RESPUESTAS CACHE-FIRST
+// FETCH
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request)
-      .then((resp) => resp || fetch(event.request))
+      .then(resp => resp || fetch(event.request))
   );
 });
