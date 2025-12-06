@@ -1,7 +1,7 @@
 // js/modulos/ia.js
 import { hablar } from "./voz.js";
 
-const API_KEY = "PONER_ACA_TU_API_KEY_DE_GEMINI";
+const API_KEY = "AIzaSyCBmGcrSH1F4Dr7qzLWPWFPbqjcUd2_LGI";
 
 export async function responderConIA(pregunta, contexto = "") {
   if (!API_KEY || API_KEY === "PONER_ACA_TU_API_KEY_DE_GEMINI") {
