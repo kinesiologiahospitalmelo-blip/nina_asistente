@@ -1,4 +1,5 @@
 // js/nina.js
+import { responderConIA } from "./modulos/ia.js";
 import { hablar } from "./modulos/voz.js";
 import { procesarWakeWord } from "./modulos/wakeword.js";
 import { identificarUsuario } from "./modulos/identidadUsuario.js";
@@ -90,6 +91,12 @@ function procesarEntrada(frase) {
 
   // 5) ONLINE (si hay internet)
   if (navigator.onLine && manejarComandoOnline(frase)) return;
+  // 6) Si todo lo demás falla → usar IA
+  if (navigator.onLine) {
+    responderConIA(frase, "La usuaria se llama Mercedes, tiene hijos Rodrigo, Sara, Gusi y Diego.");
+    return;
+  }
+
 
   // 6) FALLBACK
   hablar("No entendí. ¿Querés que llame a alguien o te diga la hora?");
