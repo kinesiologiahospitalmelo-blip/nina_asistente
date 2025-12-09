@@ -1,54 +1,40 @@
-// ==========================================
-// Service Worker — Nina v2
-// ==========================================
+const CACHE = "nina-cache-v3";
 
-const CACHE_NAME = "nina-cache-v2";
-const URLS_TO_CACHE = [
-  "/nina_asistente/",
-  "/nina_asistente/index.html",
-  "/nina_asistente/css/nina.css",
-  "/nina_asistente/js/nina.js",
-  "/nina_asistente/js/listenerContinuo.js",
+const FILES = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./css/nina.css",
+  "./js/nina.js",
 
-  "/nina_asistente/js/modulos/wakeword.js",
-  "/nina_asistente/js/modulos/voz.js",
-  "/nina_asistente/js/modulos/identidadUsuario.js",
-  "/nina_asistente/js/modulos/comandosOffline.js",
-  "/nina_asistente/js/modulos/comandosOnline.js",
-  "/nina_asistente/js/modulos/aprendizaje.js",
-  "/nina_asistente/js/modulos/buscador.js",
-  "/nina_asistente/js/modulos/gps.js",
-  "/nina_asistente/js/modulos/llamadas.js",
-  "/nina_asistente/js/modulos/ia.js"
+  "./js/modulos/voz.js",
+  "./js/modulos/wakeword.js",
+  "./js/modulos/identidadUsuario.js",
+  "./js/modulos/comandosOffline.js",
+  "./js/modulos/comandosOnline.js",
+  "./js/modulos/aprendizaje.js",
+  "./js/modulos/buscador.js",
+  "./js/modulos/gps.js",
+  "./js/modulos/llamadas.js",
+  "./js/modulos/ia.js"
 ];
 
-// Instalación: cache inicial
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(URLS_TO_CACHE);
-    })
+self.addEventListener("install", e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(FILES))
   );
 });
 
-// Activación: limpia caches viejos
-self.addEventListener("activate", event => {
-  event.waitUntil(
+self.addEventListener("activate", e => {
+  e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys.map(k => {
-          if (k !== CACHE_NAME) return caches.delete(k);
-        })
-      )
+      Promise.all(keys.map(k => k !== CACHE ? caches.delete(k) : null))
     )
   );
 });
 
-// Fetch: usa caché cuando no hay internet
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(resp => {
-      return resp || fetch(event.request);
-    })
+self.addEventListener("fetch", e => {
+  e.respondWith(
+    caches.match(e.request).then(resp => resp || fetch(e.request))
   );
 });
