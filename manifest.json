@@ -1,19 +1,21 @@
 {
-  "name": "Nina Asistente",
+  "name": "Nina IA",
   "short_name": "Nina",
-  "start_url": "index.html",
+  "description": "Asistente personal con voz, ayuda diaria e inteligencia artificial.",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#1d4ed8",
   "theme_color": "#1d4ed8",
-  "description": "Asistente personal con reconocimiento de voz y ayuda diaria.",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "https://raw.githubusercontent.com/pwa-builder/PWABuilder/primary/packages/manifest/examples/icons/192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "https://raw.githubusercontent.com/pwa-builder/PWABuilder/primary/packages/manifest/examples/icons/512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
