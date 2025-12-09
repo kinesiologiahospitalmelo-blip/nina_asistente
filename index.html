@@ -9,13 +9,9 @@
   <link rel="stylesheet" href="css/nina.css">
 
   <!-- Manifest -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="./manifest.json">
 
-  <!-- Necesario para PWA -->
   <meta name="theme-color" content="#1a4ed8">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-
 </head>
 
 <body>
@@ -90,17 +86,15 @@
 
 </main>
 
+<!-- Service Worker -->
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+
 <!-- JS principal -->
 <script type="module" src="js/nina.js"></script>
-
-<!-- Registrar Service Worker -->
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js")
-    .then(() => console.log("Service Worker registrado"))
-    .catch(err => console.error("Error registrando SW:", err));
-}
-</script>
 
 </body>
 </html>
